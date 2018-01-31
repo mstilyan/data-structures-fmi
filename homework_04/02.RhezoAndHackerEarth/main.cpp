@@ -6,7 +6,7 @@ using namespace std;
 
 typedef unsigned long long ll;
 
-struct pairhash
+struct pair_hash
 {
 	template <typename T>
 	std::size_t operator()(const std::pair<T, T> &x) const
@@ -15,10 +15,20 @@ struct pairhash
 	}
 };
 
+struct pair_equal
+{
+	template <typename T>
+	bool operator()(const std::pair<T, T> &p1, const std::pair<T, T> &p2) const
+	{
+		return p1.first == p2.first && p1.second == p2.second ||
+			(p1.first == p2.second && p1.second == p2.first);
+	}
+};
+
 ll timer = 0;
 void DFS(const ll node, const vector<vector<ll>>& graph, vector<bool>& visited, vector<ll>& low,
 	vector<ll>& discovery_time, vector<ll>& parent,
-	unordered_set<pair<ll, ll>, pairhash>& bridges)
+	unordered_set<pair<ll, ll>, pair_hash, pair_equal>& bridges)
 {
 	discovery_time[node] = low[node] = ++timer;
 	visited[node] = true;
@@ -34,7 +44,7 @@ void DFS(const ll node, const vector<vector<ll>>& graph, vector<bool>& visited, 
 			if (low[child] > discovery_time[node])
 			{
 				bridges.insert(make_pair(node, child));
-				bridges.insert(make_pair(child, node));
+				//bridges.insert(make_pair(child, node));
 			}
 		}
 		else if (parent[node] != child)
@@ -55,7 +65,7 @@ int main(int argc, char* argv[])
 	vector<ll> parent(nodes_count, -1);
 	vector<ll> low(nodes_count, INT32_MAX);
 	vector<ll> discovery_time(nodes_count);
-	unordered_set<pair<ll, ll>, pairhash> bridges;
+	unordered_set<pair<ll, ll>, pair_hash, pair_equal> bridges;
 	vector<pair<ll, ll>> edges(edges_count);
 
 	for (size_t i = 0; i < edges_count; i++)
